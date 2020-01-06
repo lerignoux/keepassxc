@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>DatabaseOpenWidget</class>
  <widget class="QWidget" name="DatabaseOpenWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>576</width>
+    <height>505</height>
+   </rect>
+  </property>
   <property name="accessibleName">
    <string>Unlock KeePassXC Database</string>
   </property>
@@ -99,7 +107,7 @@
          </spacer>
         </item>
         <item>
-         <widget class="QFrame" name="horizontalFrame">
+         <widget class="QFrame" name="loginFrame">
           <property name="minimumSize">
            <size>
             <width>550</width>

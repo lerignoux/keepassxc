@@ -27,9 +27,14 @@
 #include "core/FilePath.h"
 #include "core/Global.h"
 #include "core/Translator.h"
+#include "gui/styles/dark/DarkStyle.h"
+#include "gui/styles/light/LightStyle.h"
 
 #include "MessageBox.h"
 #include "touchid/TouchID.h"
+
+#include <QApplication>
+#include <QProxyStyle>
 
 class ApplicationSettingsWidget::ExtraPage
 {
@@ -97,6 +102,10 @@ ApplicationSettingsWidget::ApplicationSettingsWidget(QWidget* parent)
     if (!autoType()->isAvailable()) {
         m_generalUi->generalSettingsTabWidget->removeTab(1);
     }
+
+    m_generalUi->appThemeSelection->addItem(tr("Light"), QStringLiteral("light"));
+    m_generalUi->appThemeSelection->addItem(tr("Dark"), QStringLiteral("dark"));
+    m_generalUi->appThemeSelection->addItem(tr("Classic (Platform-native)"), QStringLiteral("classic"));
 
     connect(this, SIGNAL(accepted()), SLOT(saveSettings()));
     connect(this, SIGNAL(rejected()), SLOT(reject()));
@@ -197,7 +206,6 @@ void ApplicationSettingsWidget::loadSettings()
     if (!m_generalUi->hideWindowOnCopyCheckBox->isChecked()) {
         hideWindowOnCopyCheckBoxToggled(false);
     }
-
     m_generalUi->languageComboBox->clear();
     QList<QPair<QString, QString>> languages = Translator::availableLanguages();
     for (const auto& language : languages) {
@@ -212,6 +220,14 @@ void ApplicationSettingsWidget::loadSettings()
     m_generalUi->toolbarHideCheckBox->setChecked(config()->get("GUI/HideToolbar").toBool());
     m_generalUi->toolbarMovableCheckBox->setChecked(config()->get("GUI/MovableToolbar").toBool());
     m_generalUi->monospaceNotesCheckBox->setChecked(config()->get("GUI/MonospaceNotes").toBool());
+
+    int themeIndex = 0;
+    if (config()->get("GUI/ApplicationTheme") == "dark") {
+        themeIndex = 1;
+    } else if (config()->get("GUI/ApplicationTheme") == "classic") {
+        themeIndex = 2;
+    }
+    m_generalUi->appThemeSelection->setCurrentIndex(themeIndex);
 
     m_generalUi->toolButtonStyleComboBox->clear();
     m_generalUi->toolButtonStyleComboBox->addItem(tr("Icon only"), Qt::ToolButtonIconOnly);
@@ -303,19 +319,25 @@ void ApplicationSettingsWidget::saveSettings()
     config()->set("IgnoreGroupExpansion", m_generalUi->ignoreGroupExpansionCheckBox->isChecked());
     config()->set("AutoTypeEntryTitleMatch", m_generalUi->autoTypeEntryTitleMatchCheckBox->isChecked());
     config()->set("AutoTypeEntryURLMatch", m_generalUi->autoTypeEntryURLMatchCheckBox->isChecked());
-    int currentLangIndex = m_generalUi->languageComboBox->currentIndex();
     config()->set("FaviconDownloadTimeout", m_generalUi->faviconTimeoutSpinBox->value());
 
-    config()->set("GUI/Language", m_generalUi->languageComboBox->itemData(currentLangIndex).toString());
-
+    config()->set("GUI/Language", m_generalUi->languageComboBox->currentData().toString());
     config()->set("GUI/HidePreviewPanel", m_generalUi->previewHideCheckBox->isChecked());
     config()->set("GUI/HideToolbar", m_generalUi->toolbarHideCheckBox->isChecked());
     config()->set("GUI/MovableToolbar", m_generalUi->toolbarMovableCheckBox->isChecked());
     config()->set("GUI/MonospaceNotes", m_generalUi->monospaceNotesCheckBox->isChecked());
 
-    int currentToolButtonStyleIndex = m_generalUi->toolButtonStyleComboBox->currentIndex();
-    config()->set("GUI/ToolButtonStyle",
-                  m_generalUi->toolButtonStyleComboBox->itemData(currentToolButtonStyleIndex).toString());
+    QString theme = m_generalUi->appThemeSelection->currentData().toString();
+    config()->set("GUI/ApplicationTheme", theme);
+    if (theme == "light") {
+        QApplication::setStyle(new LightStyle);
+    } else if (theme == "dark") {
+        QApplication::setStyle(new DarkStyle);
+    } else if (theme == "classic") {
+        QApplication::setStyle(new QProxyStyle);
+    }
+
+    config()->set("GUI/ToolButtonStyle", m_generalUi->toolButtonStyleComboBox->currentData().toString());
 
     config()->set("GUI/ShowTrayIcon", m_generalUi->systrayShowCheckBox->isChecked());
     config()->set("GUI/DarkTrayIcon", m_generalUi->systrayDarkIconCheckBox->isChecked());

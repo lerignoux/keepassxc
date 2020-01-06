@@ -1,0 +1,3 @@
+EntryPreviewWidget QLineEdit:!active, EntryPreviewWidget QTextEdit:!active {
+    background-color: #EFEFEF;
+}
