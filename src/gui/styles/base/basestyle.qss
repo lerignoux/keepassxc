@@ -89,10 +89,6 @@ DatabaseWidget, GroupView {
     border: none;
 }
 
-/*EntryPreviewWidget QTabWidget > QWidget {*/
-/*    background-color: palette(window);*/
-/*}*/
-
 EntryPreviewWidget QLineEdit, EntryPreviewWidget QTextEdit {
     background-color: palette(window);
     border: none;

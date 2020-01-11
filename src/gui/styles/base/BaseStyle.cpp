@@ -3829,7 +3829,7 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
     int val = -1;
     switch (metric) {
     case PM_SliderTickmarkOffset:
-        val = 4;
+        val = 6;
         break;
     case PM_HeaderMargin:
     case PM_ToolTipLabelFrameWidth:
@@ -4132,6 +4132,15 @@ QSize BaseStyle::sizeFromContents(ContentsType type,
     case CT_TabBarTab: {
         // Placeholder in case we change this in the future
         return size;
+    }
+    case CT_Slider: {
+        QSize sz = size;
+        if (qobject_cast<const QSlider*>(widget)->orientation() == Qt::Horizontal) {
+            sz.setHeight(sz.height() + PM_SliderTickmarkOffset);
+        } else {
+            sz.setWidth(sz.width() + PM_SliderTickmarkOffset);
+        }
+        return sz;
     }
     case CT_GroupBox: {
         // This doesn't seem to get used except once by QGroupBox for
