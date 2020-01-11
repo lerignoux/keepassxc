@@ -64,13 +64,14 @@ namespace Phantom
         constexpr qint16 DefaultFrameWidth = 6;
         constexpr qint16 SplitterMaxLength = 25; // Length of splitter handle (not thickness)
         constexpr qint16 MenuMinimumWidth = 20; // Smallest width that menu items can have
+        constexpr qint16 MenuBar_FrameWidth = 6;
         constexpr qint16 SpinBox_ButtonWidth = 15;
 
         // These two are currently not based on font, but could be
         constexpr qint16 LineEdit_ContentsHPad = 5;
         constexpr qint16 ComboBox_NonEditable_ContentsHPad = 7;
         constexpr qint16 HeaderSortIndicator_HOffset = 1;
-        constexpr qint16 HeaderSortIndicator_VOffset = 1;
+        constexpr qint16 HeaderSortIndicator_VOffset = 2;
 
         constexpr qreal TabBarTab_Rounding = 0.0;
         constexpr qreal SpinBox_Rounding = 0.0;
@@ -91,7 +92,7 @@ namespace Phantom
         constexpr qreal ComboBox_ArrowMarginRatio = 1.0 / 3.25;
 
         constexpr qreal MenuBar_HorizontalPaddingFontRatio = 1.0 / 2.0;
-        constexpr qreal MenuBar_VerticalPaddingFontRatio = 1.0 / 6.0;
+        constexpr qreal MenuBar_VerticalPaddingFontRatio = 1.0 / 3.0;
 
         constexpr qreal MenuItem_LeftMarginFontRatio = 1.0 / 2.0;
         constexpr qreal MenuItem_RightMarginForTextFontRatio = 1.0 / 1.5;
@@ -113,6 +114,7 @@ namespace Phantom
         constexpr bool ScrollbarShadows = true;
         constexpr bool MenuExtraBottomMargin = true;
         constexpr bool MenuBarLeftMargin = false;
+        constexpr bool MenuBarDrawBorder = false;
         constexpr bool AllowToolBarAutoRaise = true;
         // Note that this only applies to the disclosure etc. decorators in tree views.
         constexpr bool ShowItemViewDecorationSelected = false;
@@ -2526,7 +2528,7 @@ void BaseStyle::drawControl(ControlElement element,
             alignment |= Qt::TextHideMnemonic;
         const auto itemState = mbi->state;
         bool maybeHasAltKeyNavFocus = itemState & State_Selected && itemState & State_HasFocus;
-        bool isSelected = itemState & State_Selected && itemState & State_Sunken;
+        bool isSelected = itemState & State_Selected || itemState & State_Sunken;
         if (!isSelected && maybeHasAltKeyNavFocus && widget) {
             isSelected = widget->hasFocus();
         }
@@ -2535,9 +2537,7 @@ void BaseStyle::drawControl(ControlElement element,
         QPalette::ColorRole textRole = isSelected ? QPalette::HighlightedText : QPalette::Text;
         proxy()->drawItemText(
             painter, textRect, alignment, mbi->palette, mbi->state & State_Enabled, mbi->text, textRole);
-        if (isSelected)
-            break;
-        if (!isSelected) {
+        if (Phantom::MenuBarDrawBorder && !isSelected) {
             Ph::fillRectEdges(painter, r, Qt::BottomEdge, 1, swatch.color(S_window_divider));
         }
         break;
@@ -2812,7 +2812,9 @@ void BaseStyle::drawControl(ControlElement element,
     }
     case CE_MenuBarEmptyArea: {
         QRect rect = option->rect;
-        Ph::fillRectEdges(painter, rect, Qt::BottomEdge, 1, swatch.color(S_window_divider));
+        if (Phantom::MenuBarDrawBorder) {
+            Ph::fillRectEdges(painter, rect, Qt::BottomEdge, 1, swatch.color(S_window_divider));
+        }
         painter->fillRect(rect.adjusted(0, 0, 0, -1), swatch.color(S_window));
         break;
     }
@@ -3822,6 +3824,8 @@ void BaseStyle::drawComplexControl(ComplexControl control,
 
 int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const QWidget* widget) const
 {
+    // Calculate pixel metrics.
+    // Use immediate return if value is not supposed to be dpi-scaled.
     int val = -1;
     switch (metric) {
     case PM_SliderTickmarkOffset:
@@ -3830,10 +3834,8 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
     case PM_HeaderMargin:
     case PM_ToolTipLabelFrameWidth:
     case PM_ButtonMargin:
+    case PM_SpinBoxFrameWidth:
         val = Phantom::DefaultFrameWidth;
-        break;
-    case PM_ComboBoxFrameWidth:
-        val = 1;
         break;
     case PM_ButtonDefaultIndicator:
     case PM_ButtonShiftHorizontal:
@@ -3845,6 +3847,8 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         }
         val = 1;
         break;
+    case PM_ComboBoxFrameWidth:
+        return 1;
     case PM_DefaultFrameWidth:
         // Original comment from fusion:
         // Do not dpi-scale because the drawn frame is always exactly 1 pixel thick
@@ -3852,9 +3856,11 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         // I seriously doubt, with all of the hacky add-or-remove-1 things
         // everywhere in fusion (and still in phantom), and the fact that fusion is
         // totally broken in high dpi, that this actually holds true.
-        return qMax(1, Phantom::DefaultFrameWidth - 2);
-    case PM_SpinBoxFrameWidth:
-        return Phantom::DefaultFrameWidth;
+        if (qobject_cast<const QAbstractItemView*>(widget)) {
+            return 1;
+        }
+        val = qMax(1, Phantom::DefaultFrameWidth - 2);
+        break;
     case PM_MessageBoxIconSize:
         val = 48;
         break;
@@ -3907,7 +3913,7 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         val = 1;
         break;
     case PM_ToolBarFrameWidth:
-        val = 0;
+        val = Phantom::MenuBar_FrameWidth;
         break;
     case PM_ToolBarItemMargin:
         val = 1;
@@ -3999,7 +4005,7 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         break;
     }
     default:
-        return QCommonStyle::pixelMetric(metric, option, widget);
+        val = QCommonStyle::pixelMetric(metric, option, widget);
     }
     return Phantom::dpiScaled(val);
 }
@@ -4740,7 +4746,7 @@ int BaseStyle::styleHint(StyleHint hint,
         return false;
     }
     case SH_Widget_Animate:
-        return 0;
+        return 1;
     default:
         break;
     }

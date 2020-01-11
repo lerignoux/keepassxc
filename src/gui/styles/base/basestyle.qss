@@ -19,56 +19,56 @@ QCheckBox, QRadioButton {
 /*    border: 1px solid palette(mid);*/
 /*}*/
 
-QMenuBar {
-    margin: 0;
-    border: none;
-}
+/*QMenuBar {*/
+/*    margin: 0;*/
+/*    border: none;*/
+/*}*/
 
-QMenuBar::item {
-    color: palette(window-text);
-    padding: 5px 7px;
-    border: none;
-}
+/*QMenuBar::item {*/
+/*    color: palette(window-text);*/
+/*    padding: 5px 7px;*/
+/*    border: none;*/
+/*}*/
 
-QMenuBar::item:selected {
-    color: palette(highlighted-text);
-    background-color: palette(highlight);
-}
+/*QMenuBar::item:selected {*/
+/*    color: palette(highlighted-text);*/
+/*    background-color: palette(highlight);*/
+/*}*/
 
-QMenuBar::item:pressed {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-}
+/*QMenuBar::item:pressed {*/
+/*    border-bottom-left-radius: 0;*/
+/*    border-bottom-right-radius: 0;*/
+/*}*/
 
-QToolBar {
-    border: none;
-    margin: 0;
-}
+/*QToolBar {*/
+/*    border: none;*/
+/*    margin: 0;*/
+/*}*/
 
-QTabBar::tab {
-    background-color: palette(button);
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border: 2px groove palette(mid);
-    border-bottom: 1px solid palette(mid);
-    padding: 6px 15px;
-}
+/*QTabBar::tab {*/
+/*    background-color: palette(button);*/
+/*    border-top-left-radius: 2px;*/
+/*    border-top-right-radius: 2px;*/
+/*    border: 2px groove palette(mid);*/
+/*    border-bottom: 1px solid palette(mid);*/
+/*    padding: 6px 15px;*/
+/*}*/
 
-QTabBar::tab:hover, QTabBar::tab:focus {
-    background-color: palette(base);
-}
+/*QTabBar::tab:hover, QTabBar::tab:focus {*/
+/*    background-color: palette(base);*/
+/*}*/
 
-QTabBar::tab:selected {
-    background-color: palette(window);
-    border-color: palette(mid);
-    border-top: 2px solid palette(highlight);
-    border-bottom-color: palette(window);
-}
+/*QTabBar::tab:selected {*/
+/*    background-color: palette(window);*/
+/*    border-color: palette(mid);*/
+/*    border-top: 2px solid palette(highlight);*/
+/*    border-bottom-color: palette(window);*/
+/*}*/
 
-QTabBar::tab:!selected {
-    bottom: 1px;
-    margin-top: 1px;
-}
+/*QTabBar::tab:!selected {*/
+/*    bottom: 1px;*/
+/*    margin-top: 1px;*/
+/*}*/
 
 QGroupBox {
     background-color: palette(light);
