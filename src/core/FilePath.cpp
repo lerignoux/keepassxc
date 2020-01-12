@@ -18,9 +18,14 @@
 
 #include "FilePath.h"
 
+#include <QApplication>
+#include <QBitmap>
 #include <QCoreApplication>
 #include <QDir>
 #include <QLibrary>
+#include <QPalette>
+#include <QPixmap>
+#include <QStyle>
 
 #include "config-keepassx.h"
 #include "core/Config.h"
@@ -132,11 +137,15 @@ QIcon FilePath::trayIconUnlocked()
     return darkIcon ? icon("apps", "keepassxc-dark") : icon("apps", "keepassxc-unlocked");
 #endif
 }
-
+#include <QDebug>
+#include <QtGui/QPainter>
 QIcon FilePath::icon(const QString& category, const QString& name, bool fromTheme)
 {
-    QString combinedName = category + "/" + name;
+    bool isLightTheme = config()->get("GUI/ApplicationTheme").toString() == "light";
+    bool isDarkTheme = config()->get("GUI/ApplicationTheme").toString() == "dark";
+    bool isDarkMode = isDarkTheme || QApplication::style()->standardPalette().color(QPalette::Window).lightness() < 115;
 
+    QString combinedName = category + "/" + name;
     QIcon icon = m_iconCache.value(combinedName);
 
     if (!icon.isNull()) {
@@ -159,7 +168,27 @@ QIcon FilePath::icon(const QString& category, const QString& name, bool fromThem
         }
         filename = QString("%1/icons/application/scalable/%2.svg").arg(m_dataPath, combinedName);
         if (QFile::exists(filename)) {
-            icon.addFile(filename);
+            QFile f(filename);
+            QIcon scalable(filename);
+            QPixmap pixmap = scalable.pixmap({128, 128});
+
+            if (!isDarkMode) {
+                icon.addPixmap(pixmap, QIcon::Normal);
+            }
+
+            if (isDarkMode || isLightTheme) {
+                auto mask = QBitmap::fromImage(pixmap.toImage().createAlphaMask());
+                if (isDarkTheme) {
+                    pixmap.fill(QColor("#B9BEB9"));
+                } else {
+                    pixmap.fill(QColor("#F3F3F4"));
+                }
+                pixmap.setMask(mask);
+                icon.addPixmap(pixmap, isDarkMode ? QIcon::Normal : QIcon::Selected);
+            }
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+            icon.setIsMask(true);
+#endif
         }
     }
 

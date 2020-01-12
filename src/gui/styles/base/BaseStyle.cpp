@@ -4618,10 +4618,12 @@ QRect BaseStyle::itemPixmapRect(const QRect& r, int flags, const QPixmap& pixmap
 {
     return QCommonStyle::itemPixmapRect(r, flags, pixmap);
 }
+
 void BaseStyle::drawItemPixmap(QPainter* painter, const QRect& rect, int alignment, const QPixmap& pixmap) const
 {
     QCommonStyle::drawItemPixmap(painter, rect, alignment, pixmap);
 }
+
 QStyle::SubControl BaseStyle::hitTestComplexControl(ComplexControl cc,
                                                     const QStyleOptionComplex* opt,
                                                     const QPoint& pt,
@@ -4629,6 +4631,7 @@ QStyle::SubControl BaseStyle::hitTestComplexControl(ComplexControl cc,
 {
     return QCommonStyle::hitTestComplexControl(cc, opt, pt, w);
 }
+
 QPixmap BaseStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap& pixmap, const QStyleOption* opt) const
 {
     return QCommonStyle::generatedIconPixmap(iconMode, pixmap, opt);

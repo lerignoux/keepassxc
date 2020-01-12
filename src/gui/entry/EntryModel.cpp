@@ -259,12 +259,12 @@ QVariant EntryModel::data(const QModelIndex& index, int role) const
             return entry->iconScaledPixmap();
         case Paperclip:
             if (!entry->attachments()->isEmpty()) {
-                return filePath()->icon("actions", "paperclip").pixmap(16);
+                return filePath()->icon("actions", "paperclip");
             }
             break;
         case Totp:
             if (entry->hasTotp()) {
-                return filePath()->icon("actions", "chronometer").pixmap(16);
+                return filePath()->icon("actions", "chronometer");
             }
             break;
         }
@@ -332,9 +332,9 @@ QVariant EntryModel::headerData(int section, Qt::Orientation orientation, int ro
     } else if (role == Qt::DecorationRole) {
         switch (section) {
         case Paperclip:
-            return filePath()->icon("actions", "paperclip").pixmap(16);
+            return filePath()->icon("actions", "paperclip");
         case Totp:
-            return filePath()->icon("actions", "chronometer").pixmap(16);
+            return filePath()->icon("actions", "chronometer");
         }
     } else if (role == Qt::ToolTipRole) {
         switch (section) {
