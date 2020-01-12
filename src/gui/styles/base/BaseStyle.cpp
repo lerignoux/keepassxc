@@ -72,6 +72,7 @@ namespace Phantom
         constexpr qint16 ComboBox_NonEditable_ContentsHPad = 7;
         constexpr qint16 HeaderSortIndicator_HOffset = 1;
         constexpr qint16 HeaderSortIndicator_VOffset = 2;
+        constexpr qint16 TabBar_InctiveVShift = 0;
 
         constexpr qreal TabBarTab_Rounding = 0.0;
         constexpr qreal SpinBox_Rounding = 0.0;
@@ -2892,6 +2893,9 @@ void BaseStyle::drawControl(ControlElement element,
         Ph::paintBorderedRoundRect(painter, drawRect.adjusted(1, 1, -1, -1), rounding, swatch, specular, S_none);
         painter->restore();
         if (isSelected) {
+            QRect highlightRect = drawRect;
+            highlightRect.setHeight(Ph::dpiScaled(2.0));
+            painter->fillRect(highlightRect, swatch.color(S_highlight));
             QRect refillRect = Ph::rectFromInnerEdgeWithThickness(shapeClipRect, innerEdge, 2);
             refillRect = Ph::rectTranslatedTowardEdge(refillRect, innerEdge, 2);
             refillRect = Ph::expandRect(refillRect, edgeAwayNextTab | edgeTowardNextTab, -1);
@@ -3974,6 +3978,10 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         if (!widget)
             break;
         return widget->fontMetrics().height();
+    }
+    case PM_TabBarTabShiftVertical: {
+        val = Phantom::TabBar_InctiveVShift;
+        break;
     }
     case PM_SubMenuOverlap:
         val = 0;
