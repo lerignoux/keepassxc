@@ -4587,7 +4587,7 @@ QRect BaseStyle::subControlRect(ComplexControl control,
                 offset += delta;
             else if (sc == SC_TitleBarMaxButton)
                 break;
-                    Q_FALLTHROUGH();
+            Q_FALLTHROUGH();
         case SC_TitleBarShadeButton:
             if (!isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
                 offset += delta;
