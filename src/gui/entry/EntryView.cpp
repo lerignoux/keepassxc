@@ -440,13 +440,13 @@ void EntryView::resetViewToDefaults()
     }
     header()->showSection(EntryModel::Title);
     header()->showSection(EntryModel::Username);
+    header()->showSection(EntryModel::Url);
     header()->showSection(EntryModel::Notes);
     header()->showSection(EntryModel::Modified);
     header()->showSection(EntryModel::Paperclip);
     header()->showSection(EntryModel::Totp);
 
     header()->hideSection(EntryModel::Password);
-    header()->hideSection(EntryModel::Url);
     header()->hideSection(EntryModel::Expires);
     header()->hideSection(EntryModel::Created);
     header()->hideSection(EntryModel::Accessed);
