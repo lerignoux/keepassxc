@@ -28,6 +28,7 @@ class LightStyle : public BaseStyle
 public:
     using BaseStyle::polish;
     void polish(QPalette& palette) override;
+    void polish(QWidget* widget) override;
 
 protected:
     QStringList getAppStyleSheetPaths() const override;

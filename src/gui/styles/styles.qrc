@@ -4,5 +4,6 @@
         <file>base/basestyle.qss</file>
         <file>dark/darkstyle.qss</file>
         <file>light/lightstyle.qss</file>
+        <file>light/lightstyle-win.qss</file>
     </qresource>
 </RCC>

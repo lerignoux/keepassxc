@@ -1,0 +1,6 @@
+/* Window palette states */
+
+DatabaseWidget:!active, GroupView:!active,
+EntryPreviewWidget QLineEdit:!active, EntryPreviewWidget QTextEdit:!active {
+    background-color: #FFFFFF;
+}
