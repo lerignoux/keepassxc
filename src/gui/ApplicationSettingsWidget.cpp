@@ -27,14 +27,9 @@
 #include "core/FilePath.h"
 #include "core/Global.h"
 #include "core/Translator.h"
-#include "gui/styles/dark/DarkStyle.h"
-#include "gui/styles/light/LightStyle.h"
 
 #include "MessageBox.h"
 #include "touchid/TouchID.h"
-
-#include <QApplication>
-#include <QProxyStyle>
 
 class ApplicationSettingsWidget::ExtraPage
 {
@@ -103,10 +98,6 @@ ApplicationSettingsWidget::ApplicationSettingsWidget(QWidget* parent)
         m_generalUi->generalSettingsTabWidget->removeTab(1);
     }
 
-    m_generalUi->appThemeSelection->addItem(tr("Light"), QStringLiteral("light"));
-    m_generalUi->appThemeSelection->addItem(tr("Dark"), QStringLiteral("dark"));
-    m_generalUi->appThemeSelection->addItem(tr("Classic (Platform-native)"), QStringLiteral("classic"));
-
     connect(this, SIGNAL(accepted()), SLOT(saveSettings()));
     connect(this, SIGNAL(rejected()), SLOT(reject()));
 
@@ -159,6 +150,8 @@ ApplicationSettingsWidget::ApplicationSettingsWidget(QWidget* parent)
         m_secUi->touchIDResetSpinBox->setVisible(false);
         m_secUi->touchIDResetOnScreenLockCheckBox->setVisible(false);
     }
+
+    loadSettings();
 }
 
 ApplicationSettingsWidget::~ApplicationSettingsWidget()
@@ -206,6 +199,7 @@ void ApplicationSettingsWidget::loadSettings()
     if (!m_generalUi->hideWindowOnCopyCheckBox->isChecked()) {
         hideWindowOnCopyCheckBoxToggled(false);
     }
+
     m_generalUi->languageComboBox->clear();
     QList<QPair<QString, QString>> languages = Translator::availableLanguages();
     for (const auto& language : languages) {
@@ -221,13 +215,12 @@ void ApplicationSettingsWidget::loadSettings()
     m_generalUi->toolbarMovableCheckBox->setChecked(config()->get("GUI/MovableToolbar").toBool());
     m_generalUi->monospaceNotesCheckBox->setChecked(config()->get("GUI/MonospaceNotes").toBool());
 
-    int themeIndex = 0;
-    if (config()->get("GUI/ApplicationTheme") == "dark") {
-        themeIndex = 1;
-    } else if (config()->get("GUI/ApplicationTheme") == "classic") {
-        themeIndex = 2;
-    }
-    m_generalUi->appThemeSelection->setCurrentIndex(themeIndex);
+    m_generalUi->appThemeSelection->clear();
+    m_generalUi->appThemeSelection->addItem(tr("Light"), QStringLiteral("light"));
+    m_generalUi->appThemeSelection->addItem(tr("Dark"), QStringLiteral("dark"));
+    m_generalUi->appThemeSelection->addItem(tr("Classic (Platform-native)"), QStringLiteral("classic"));
+    m_generalUi->appThemeSelection->setCurrentIndex(m_generalUi->appThemeSelection->findData(
+        config()->get("GUI/ApplicationTheme").toString()));
 
     m_generalUi->toolButtonStyleComboBox->clear();
     m_generalUi->toolButtonStyleComboBox->addItem(tr("Icon only"), Qt::ToolButtonIconOnly);
@@ -329,13 +322,6 @@ void ApplicationSettingsWidget::saveSettings()
 
     QString theme = m_generalUi->appThemeSelection->currentData().toString();
     config()->set("GUI/ApplicationTheme", theme);
-    if (theme == "light") {
-        QApplication::setStyle(new LightStyle);
-    } else if (theme == "dark") {
-        QApplication::setStyle(new DarkStyle);
-    } else if (theme == "classic") {
-        QApplication::setStyle(new QProxyStyle);
-    }
 
     config()->set("GUI/ToolButtonStyle", m_generalUi->toolButtonStyleComboBox->currentData().toString());
 
