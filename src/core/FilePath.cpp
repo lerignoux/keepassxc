@@ -30,6 +30,7 @@
 #include "config-keepassx.h"
 #include "core/Config.h"
 #include "core/Global.h"
+#include "gui/MainWindow.h"
 
 FilePath* FilePath::m_instance(nullptr);
 
@@ -101,9 +102,9 @@ QString FilePath::wordlistPath(const QString& name)
 QIcon FilePath::applicationIcon()
 {
 #ifdef KEEPASSXC_DIST_SNAP
-    return icon("apps", "keepassxc", false);
+    return icon("apps", "keepassxc", false, false);
 #else
-    return icon("apps", "keepassxc");
+    return icon("apps", "keepassxc", true, false);
 #endif
 }
 
@@ -114,16 +115,17 @@ QIcon FilePath::trayIcon()
 #ifdef KEEPASSXC_DIST_SNAP
     return (darkIcon) ? icon("apps", "keepassxc-dark", false) : icon("apps", "keepassxc", false);
 #else
-    return (darkIcon) ? icon("apps", "keepassxc-dark") : icon("apps", "keepassxc");
+    return (darkIcon) ? icon("apps", "keepassxc-dark", true, false) :
+        icon("apps", "keepassxc", true, false);
 #endif
 }
 
 QIcon FilePath::trayIconLocked()
 {
 #ifdef KEEPASSXC_DIST_SNAP
-    return icon("apps", "keepassxc-locked", false);
+    return icon("apps", "keepassxc-locked", false, false);
 #else
-    return icon("apps", "keepassxc-locked");
+    return icon("apps", "keepassxc-locked", true, false);
 #endif
 }
 
@@ -132,19 +134,15 @@ QIcon FilePath::trayIconUnlocked()
     bool darkIcon = useDarkIcon();
 
 #ifdef KEEPASSXC_DIST_SNAP
-    return darkIcon ? icon("apps", "keepassxc-dark", false) : icon("apps", "keepassxc-unlocked", false);
+    return darkIcon ? icon("apps", "keepassxc-dark", false, false) : icon("apps", "keepassxc-unlocked", false, false);
 #else
-    return darkIcon ? icon("apps", "keepassxc-dark") : icon("apps", "keepassxc-unlocked");
+    return darkIcon ? icon("apps", "keepassxc-dark",true, false) :
+        icon("apps", "keepassxc-unlocked", true, false);
 #endif
 }
-#include <QDebug>
-#include <QtGui/QPainter>
-QIcon FilePath::icon(const QString& category, const QString& name, bool fromTheme)
-{
-    bool isLightTheme = config()->get("GUI/ApplicationTheme").toString() == "light";
-    bool isDarkTheme = config()->get("GUI/ApplicationTheme").toString() == "dark";
-    bool isDarkMode = isDarkTheme || QApplication::style()->standardPalette().color(QPalette::Window).lightness() < 115;
 
+QIcon FilePath::icon(const QString& category, const QString& name, bool fromTheme, bool recolor)
+{
     QString combinedName = category + "/" + name;
     QIcon icon = m_iconCache.value(combinedName);
 
@@ -167,28 +165,31 @@ QIcon FilePath::icon(const QString& category, const QString& name, bool fromThem
             }
         }
         filename = QString("%1/icons/application/scalable/%2.svg").arg(m_dataPath, combinedName);
-        if (QFile::exists(filename)) {
+        if (QFile::exists(filename) && getMainWindow() && recolor) {
+            QPalette palette = getMainWindow()->palette();
+
             QFile f(filename);
             QIcon scalable(filename);
             QPixmap pixmap = scalable.pixmap({128, 128});
 
-            if (!isDarkMode) {
-                icon.addPixmap(pixmap, QIcon::Normal);
-            }
+            auto mask = QBitmap::fromImage(pixmap.toImage().createAlphaMask());
+            pixmap.fill(palette.color(QPalette::WindowText));
+            pixmap.setMask(mask);
+            icon.addPixmap(pixmap, QIcon::Mode::Normal);
 
-            if (isDarkMode || isLightTheme) {
-                auto mask = QBitmap::fromImage(pixmap.toImage().createAlphaMask());
-                if (isDarkTheme) {
-                    pixmap.fill(QColor("#B9BEB9"));
-                } else {
-                    pixmap.fill(QColor("#F3F3F4"));
-                }
-                pixmap.setMask(mask);
-                icon.addPixmap(pixmap, isDarkMode ? QIcon::Normal : QIcon::Selected);
-            }
+            pixmap.fill(palette.color(QPalette::HighlightedText));
+            pixmap.setMask(mask);
+            icon.addPixmap(pixmap, QIcon::Mode::Selected);
+
+            pixmap.fill(palette.color(QPalette::Disabled, QPalette::WindowText));
+            pixmap.setMask(mask);
+            icon.addPixmap(pixmap, QIcon::Mode::Disabled);
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
             icon.setIsMask(true);
 #endif
+        } else if (QFile::exists(filename)) {
+            icon.addFile(filename);
         }
     }
 

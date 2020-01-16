@@ -1102,7 +1102,7 @@ void MainWindow::updateTrayIcon()
 
             QAction* actionToggle = new QAction(tr("Toggle window"), menu);
             menu->addAction(actionToggle);
-            actionToggle->setIcon(filePath()->icon("apps", "keepassxc-dark"));
+            actionToggle->setIcon(filePath()->icon("apps", "keepassxc-dark", true, false));
 
             menu->addAction(m_ui->actionLockDatabases);
 
