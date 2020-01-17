@@ -2,7 +2,7 @@
 
 DatabaseWidget:!active, GroupView:!active,
 EntryPreviewWidget QLineEdit:!active, EntryPreviewWidget QTextEdit:!active {
-    background-color: #EFEFEF;
+    background-color: #F4F4F4;
 }
 
 DatabaseWidget:disabled, GroupView:disabled,

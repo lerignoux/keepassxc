@@ -28,9 +28,9 @@ void LightStyle::polish(QPalette& palette)
 #ifdef Q_OS_WIN
     palette.setColor(QPalette::All, QPalette::Window, QStringLiteral("#F9F9F9"));
 #else
-    palette.setColor(QPalette::Active, QPalette::Window, QStringLiteral("#F4F4F4"));
-    palette.setColor(QPalette::Inactive, QPalette::Window, QStringLiteral("#EFEFEF"));
-    palette.setColor(QPalette::Disabled, QPalette::Window, QStringLiteral("#E8E8EA"));
+    palette.setColor(QPalette::Active, QPalette::Window, QStringLiteral("#F9F9F9"));
+    palette.setColor(QPalette::Inactive, QPalette::Window, QStringLiteral("#F4F4F4"));
+    palette.setColor(QPalette::Disabled, QPalette::Window, QStringLiteral("#EDEDEE"));
 #endif
 
     palette.setColor(QPalette::Active, QPalette::WindowText, QStringLiteral("#080809"));
@@ -99,13 +99,11 @@ QStringList LightStyle::getAppStyleSheetPaths() const
 
 void LightStyle::polish(QWidget* widget)
 {
-#ifdef Q_OS_WIN
     if (qobject_cast<QMainWindow*>(widget) || qobject_cast<QDialog*>(widget)
         || qobject_cast<QMenuBar*>(widget) || qobject_cast<QToolBar*>(widget)) {
         auto palette = widget->palette();
         palette.setColor(QPalette::All, QPalette::Window, QStringLiteral("#FFFFFF"));
         widget->setPalette(palette);
     }
-#endif
     QCommonStyle::polish(widget);
 }
