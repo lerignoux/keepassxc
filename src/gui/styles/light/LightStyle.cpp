@@ -17,6 +17,9 @@
 
 #include "LightStyle.h"
 #include "gui/ApplicationSettingsWidget.h"
+#ifdef Q_OS_MACOS
+#include "gui/macutils/MacUtils.h"
+#endif
 
 #include <QDialog>
 #include <QMainWindow>
@@ -25,7 +28,7 @@
 
 void LightStyle::polish(QPalette& palette)
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
     palette.setColor(QPalette::All, QPalette::Window, QStringLiteral("#F9F9F9"));
 #else
     palette.setColor(QPalette::Active, QPalette::Window, QStringLiteral("#F9F9F9"));
@@ -102,8 +105,18 @@ void LightStyle::polish(QWidget* widget)
     if (qobject_cast<QMainWindow*>(widget) || qobject_cast<QDialog*>(widget)
         || qobject_cast<QMenuBar*>(widget) || qobject_cast<QToolBar*>(widget)) {
         auto palette = widget->palette();
+#ifdef Q_OS_MACOS
+        if (!MacUtils::instance()->isDarkMode()) {
+            // Let the Cocoa platform plugin draw its own background
+            palette.setColor(QPalette::All, QPalette::Window, Qt::transparent);
+        } else {
+            palette.setColor(QPalette::Active, QPalette::Window, QStringLiteral("#D6D6D6"));
+            palette.setColor(QPalette::Inactive, QPalette::Window, QStringLiteral("#F6F6F6"));
+            palette.setColor(QPalette::Disabled, QPalette::Window, QStringLiteral("#D4D4D4"));
+        }
+#else
         palette.setColor(QPalette::All, QPalette::Window, QStringLiteral("#FFFFFF"));
+#endif
         widget->setPalette(palette);
     }
-    QCommonStyle::polish(widget);
 }

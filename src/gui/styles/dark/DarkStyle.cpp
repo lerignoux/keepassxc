@@ -16,6 +16,14 @@
  */
 
 #include "DarkStyle.h"
+#ifdef Q_OS_MACOS
+#include "gui/macutils/MacUtils.h"
+#endif
+
+#include <QDialog>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QToolBar>
 
 void DarkStyle::polish(QPalette& palette)
 {
@@ -81,4 +89,25 @@ void DarkStyle::polish(QPalette& palette)
 QStringList DarkStyle::getAppStyleSheetPaths() const
 {
     return {QStringLiteral(":/styles/dark/darkstyle.qss")};
+}
+
+void DarkStyle::polish(QWidget* widget)
+{
+    if (qobject_cast<QMainWindow*>(widget) || qobject_cast<QDialog*>(widget)
+        || qobject_cast<QMenuBar*>(widget) || qobject_cast<QToolBar*>(widget)) {
+        auto palette = widget->palette();
+#ifdef Q_OS_MACOS
+        if (MacUtils::instance()->isDarkMode()) {
+            // Let the Cocoa platform plugin draw its own background
+            palette.setColor(QPalette::All, QPalette::Window, Qt::transparent);
+        } else {
+            palette.setColor(QPalette::Active, QPalette::Window, QStringLiteral("#2A2A2A"));
+            palette.setColor(QPalette::Inactive, QPalette::Window, QStringLiteral("#2D2D2D"));
+            palette.setColor(QPalette::Disabled, QPalette::Window, QStringLiteral("#2A2A2A"));
+        }
+#else
+        palette.setColor(QPalette::All, QPalette::Window, QStringLiteral("#2B2B2B"));
+#endif
+        widget->setPalette(palette);
+    }
 }
