@@ -115,8 +115,7 @@ QIcon FilePath::trayIcon()
 #ifdef KEEPASSXC_DIST_SNAP
     return (darkIcon) ? icon("apps", "keepassxc-dark", false) : icon("apps", "keepassxc", false);
 #else
-    return (darkIcon) ? icon("apps", "keepassxc-dark", true, false) :
-        icon("apps", "keepassxc", true, false);
+    return (darkIcon) ? icon("apps", "keepassxc-dark", true, false) : icon("apps", "keepassxc", true, false);
 #endif
 }
 
@@ -136,8 +135,7 @@ QIcon FilePath::trayIconUnlocked()
 #ifdef KEEPASSXC_DIST_SNAP
     return darkIcon ? icon("apps", "keepassxc-dark", false, false) : icon("apps", "keepassxc-unlocked", false, false);
 #else
-    return darkIcon ? icon("apps", "keepassxc-dark",true, false) :
-        icon("apps", "keepassxc-unlocked", true, false);
+    return darkIcon ? icon("apps", "keepassxc-dark", true, false) : icon("apps", "keepassxc-unlocked", true, false);
 #endif
 }
 

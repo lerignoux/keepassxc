@@ -1,4 +1,6 @@
+/* Windows style overrides */
+
 DatabaseWidget:!active, GroupView:!active,
 EntryPreviewWidget QLineEdit:!active, EntryPreviewWidget QTextEdit:!active {
-    background-color: #FFFFFF;
+    background-color: #F9F9F9;
 }

@@ -604,9 +604,9 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
     m_ui->actionLockDatabases->setEnabled(m_ui->tabWidget->hasLockableDatabases());
 
     if (m_showToolbarSeparator) {
-        m_ui->toolbarSeparator->setVisible((!inWelcomeWidget &&
-            inDatabaseTabWidget && !m_ui->tabWidget->tabBar()->isVisible()) ||
-            currentIndex == SettingsScreen);
+        m_ui->toolbarSeparator->setVisible(
+            (!inWelcomeWidget && inDatabaseTabWidget && !m_ui->tabWidget->tabBar()->isVisible())
+            || currentIndex == SettingsScreen);
     }
 
     if (inDatabaseTabWidget && m_ui->tabWidget->currentIndex() != -1) {
@@ -759,8 +759,7 @@ void MainWindow::setMenuActionState(DatabaseWidget::Mode mode)
 void MainWindow::adjustToTabVisibilityChange(bool tabsVisible)
 {
     if (m_showToolbarSeparator) {
-        m_ui->toolbarSeparator->setVisible(!tabsVisible &&
-            m_ui->stackedWidget->currentIndex() == DatabaseTabScreen);
+        m_ui->toolbarSeparator->setVisible(!tabsVisible && m_ui->stackedWidget->currentIndex() == DatabaseTabScreen);
     }
 }
 

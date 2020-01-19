@@ -102,8 +102,8 @@ QStringList LightStyle::getAppStyleSheetPaths() const
 
 void LightStyle::polish(QWidget* widget)
 {
-    if (qobject_cast<QMainWindow*>(widget) || qobject_cast<QDialog*>(widget)
-        || qobject_cast<QMenuBar*>(widget) || qobject_cast<QToolBar*>(widget)) {
+    if (qobject_cast<QMainWindow*>(widget) || qobject_cast<QDialog*>(widget) || qobject_cast<QMenuBar*>(widget)
+        || qobject_cast<QToolBar*>(widget)) {
         auto palette = widget->palette();
 #ifdef Q_OS_MACOS
         if (!MacUtils::instance()->isDarkMode()) {

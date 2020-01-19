@@ -121,7 +121,6 @@ namespace Phantom
         constexpr bool BranchesOnEdge = false;
         constexpr bool OverhangShadows = false;
         constexpr bool IndicatorShadows = false;
-        constexpr bool ScrollbarShadows = true;
         constexpr bool MenuExtraBottomMargin = true;
         constexpr bool MenuBarLeftMargin = false;
         constexpr bool MenuBarDrawBorder = false;
@@ -3429,8 +3428,8 @@ void BaseStyle::drawComplexControl(ComplexControl control,
 
         // Slider thumb
         if (scrollBar->subControls & SC_ScrollBarSlider) {
-            qreal radius = (scrollBar->orientation == Qt::Horizontal ?
-                            scrollBarSlider.height() : scrollBarSlider.width()) / 2.0;
+            qreal radius =
+                (scrollBar->orientation == Qt::Horizontal ? scrollBarSlider.height() : scrollBarSlider.width()) / 2.0;
             painter->fillRect(scrollBarSlider, swatch.color(S_window));
             Ph::paintSolidRoundRect(painter, scrollBarSlider, radius, swatch, S_button);
         }

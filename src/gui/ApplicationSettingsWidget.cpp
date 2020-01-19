@@ -219,8 +219,8 @@ void ApplicationSettingsWidget::loadSettings()
     m_generalUi->appThemeSelection->addItem(tr("Light"), QStringLiteral("light"));
     m_generalUi->appThemeSelection->addItem(tr("Dark"), QStringLiteral("dark"));
     m_generalUi->appThemeSelection->addItem(tr("Classic (Platform-native)"), QStringLiteral("classic"));
-    m_generalUi->appThemeSelection->setCurrentIndex(m_generalUi->appThemeSelection->findData(
-        config()->get("GUI/ApplicationTheme").toString()));
+    m_generalUi->appThemeSelection->setCurrentIndex(
+        m_generalUi->appThemeSelection->findData(config()->get("GUI/ApplicationTheme").toString()));
 
     m_generalUi->toolButtonStyleComboBox->clear();
     m_generalUi->toolButtonStyleComboBox->addItem(tr("Icon only"), Qt::ToolButtonIconOnly);
