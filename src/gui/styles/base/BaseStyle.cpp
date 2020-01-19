@@ -3409,238 +3409,31 @@ void BaseStyle::drawComplexControl(ComplexControl control,
         auto scrollBar = qstyleoption_cast<const QStyleOptionSlider*>(option);
         if (!scrollBar)
             break;
-        bool isHorizontal = scrollBar->orientation == Qt::Horizontal;
-        bool isLeftToRight = option->direction != Qt::RightToLeft;
         auto pr = proxy();
-        bool isSunken = scrollBar->state & State_Sunken;
         QRect scrollBarSubLine = pr->subControlRect(control, scrollBar, SC_ScrollBarSubLine, widget);
         QRect scrollBarAddLine = pr->subControlRect(control, scrollBar, SC_ScrollBarAddLine, widget);
         QRect scrollBarSlider = pr->subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
         QRect scrollBarGroove = pr->subControlRect(control, scrollBar, SC_ScrollBarGroove, widget);
 
-        bool scrollBarGrooveShown = scrollBar->subControls & SC_ScrollBarGroove;
-        bool isEnabled = scrollBar->state & State_Enabled;
-        bool hasRange = scrollBar->minimum != scrollBar->maximum;
-
         // Groove/gutter/trench area
-        if (scrollBarGrooveShown) {
-            QRect r = scrollBarGroove;
-            Qt::Edges edges;
-            if (isHorizontal) {
-                edges = Qt::TopEdge;
-                r.setY(r.y() + 1);
-            } else {
-                if (isLeftToRight) {
-                    edges = Qt::LeftEdge;
-                    r.setX(r.x() + 1);
-                } else {
-                    edges = Qt::RightEdge;
-                    r.setWidth(r.width() - 1);
-                }
-            }
-            Swatchy grooveColor = isEnabled ? S_scrollbarGutter : S_scrollbarGutter_disabled;
-            // Top or left dark edge
-            Ph::fillRectEdges(painter, scrollBarGroove, edges, 1, swatch.color(S_window_outline));
-            // Ring shadow
-            if (Ph::ScrollbarShadows && isEnabled) {
-                for (int i = 0; i < Ph::Num_ShadowSteps; ++i) {
-                    Ph::fillRectOutline(painter, r, 1, swatch.scrollbarShadowColors[i]);
-                    r.adjust(1, 1, -1, -1);
-                }
-            }
-            // General BG fill
-            painter->fillRect(r, swatch.color(grooveColor));
-
-            // Bonus fun: also draw a shadow cast by the scrollbar slider
-            if (Ph::ScrollbarShadows && scrollBar->subControls & SC_ScrollBarSlider && isEnabled && hasRange) {
-                if (isHorizontal) {
-                    r = scrollBarSlider;
-                    int leftwardEnd = scrollBarGroove.left() + 1;
-                    int availWidth = r.left() - leftwardEnd;
-                    int steps = qMin<int>(availWidth / 2, Ph::Num_ShadowSteps);
-                    if (steps < 0)
-                        steps = 0;
-                    r.adjust(-2, 2, 0, -1);
-                    r.setWidth(1);
-                    for (int i = 0; i < steps; ++i) {
-                        painter->fillRect(r, swatch.scrollbarShadowColors[i]);
-                        r.adjust(-1, 1, -1, -1);
-                    }
-                    r = scrollBarSlider;
-                    int rightwardEnd = scrollBarGroove.left() + scrollBarGroove.width() - 2;
-                    availWidth = rightwardEnd - r.right();
-                    steps = qMin<int>(availWidth / 2, Ph::Num_ShadowSteps);
-                    if (steps < 0)
-                        steps = 0;
-                    r.moveLeft(r.right() + 1);
-                    r.adjust(1, 2, 0, -1);
-                    r.setWidth(1);
-                    for (int i = 0; i < steps; ++i) {
-                        painter->fillRect(r, swatch.scrollbarShadowColors[i]);
-                        r.adjust(1, 1, 1, -1);
-                    }
-                } else {
-                    r = scrollBarSlider;
-                    int topEnd = scrollBarGroove.top() + 1;
-                    int availWidth = r.top() - topEnd;
-                    int steps = qMin<int>(availWidth / 2, Ph::Num_ShadowSteps);
-                    if (steps < 0)
-                        steps = 0;
-                    r.adjust(2, -2, -1, 0);
-                    r.setHeight(1);
-                    if (!isLeftToRight)
-                        r.translate(-1, 0);
-                    for (int i = 0; i < steps; ++i) {
-                        painter->fillRect(r, swatch.scrollbarShadowColors[i]);
-                        r.adjust(1, -1, -1, -1);
-                    }
-                    r = scrollBarSlider;
-                    int botEnd = scrollBarGroove.bottom() - 1;
-                    availWidth = botEnd - r.bottom();
-                    steps = qMin<int>(availWidth / 2, Ph::Num_ShadowSteps);
-                    if (steps < 0)
-                        steps = 0;
-                    r.setTop(r.bottom() + 1);
-                    r.setHeight(1);
-                    r.adjust(2, 2, -1, 0);
-                    if (!isLeftToRight)
-                        r.translate(-1, 0);
-                    for (int i = 0; i < steps; ++i) {
-                        painter->fillRect(r, swatch.scrollbarShadowColors[i]);
-                        r.adjust(1, 1, -1, 1);
-                    }
-                }
-            }
+        if (scrollBar->subControls & SC_ScrollBarGroove) {
+            painter->fillRect(scrollBarGroove, swatch.color(S_window));
         }
 
         // Slider thumb
         if (scrollBar->subControls & SC_ScrollBarSlider) {
-            Swatchy thumbFill, thumbSpecular;
-            if (isSunken && scrollBar->activeSubControls & SC_ScrollBarSlider) {
-                thumbFill = S_button_pressed;
-                thumbSpecular = S_button_pressed_specular;
-            } else if (hasRange) {
-                thumbFill = S_button;
-                thumbSpecular = S_button_specular;
-            } else {
-                thumbFill = S_window;
-                thumbSpecular = S_none;
-            }
-            Qt::Edges edges;
-            QRect edgeRect = scrollBarSlider;
-            QRect mainRect = scrollBarSlider;
-            if (isHorizontal) {
-                edges = Qt::LeftEdge | Qt::TopEdge | Qt::RightEdge;
-                edgeRect.adjust(-1, 0, 1, 0);
-                mainRect.setY(mainRect.y() + 1);
-            } else {
-                edgeRect.adjust(0, -1, 0, 1);
-                if (isLeftToRight) {
-                    edges = Qt::LeftEdge | Qt::TopEdge | Qt::BottomEdge;
-                    mainRect.setX(mainRect.x() + 1);
-                } else {
-                    edges = Qt::TopEdge | Qt::BottomEdge | Qt::RightEdge;
-                    mainRect.setWidth(mainRect.width() - 1);
-                }
-            }
-            Ph::fillRectEdges(painter, edgeRect, edges, 1, swatch.color(S_window_outline));
-            painter->fillRect(mainRect, swatch.color(thumbFill));
-            if (thumbSpecular) {
-                Ph::fillRectOutline(painter, mainRect, 1, swatch.color(thumbSpecular));
-            }
+            painter->fillRect(scrollBarSlider, swatch.color(S_window));
+            Ph::paintSolidRoundRect(painter, scrollBarSlider, PM_ScrollBarExtent / 2.0, swatch, S_button);
         }
 
         // The SubLine (up/left) buttons
         if (scrollBar->subControls & SC_ScrollBarSubLine) {
-            Swatchy fill, specular;
-            if (isSunken && scrollBar->activeSubControls & SC_ScrollBarSubLine) {
-                fill = S_button_pressed;
-                specular = S_button_pressed_specular;
-            } else if (hasRange) {
-                fill = S_button;
-                specular = S_button_specular;
-            } else {
-                fill = S_window;
-                specular = S_none;
-            }
-
-            QRect btnRect = scrollBarSubLine;
-            QRect bgRect = btnRect;
-            Qt::Edges edges;
-            if (isHorizontal) {
-                if (isLeftToRight) {
-                    edges = Qt::TopEdge | Qt::RightEdge;
-                    bgRect.adjust(0, 1, -1, 0);
-                } else {
-                    edges = Qt::LeftEdge | Qt::TopEdge;
-                    bgRect.adjust(1, 1, 0, 0);
-                }
-            } else {
-                if (isLeftToRight) {
-                    edges = Qt::LeftEdge | Qt::BottomEdge;
-                    bgRect.adjust(1, 0, 0, -1);
-                } else {
-                    edges = Qt::RightEdge | Qt::BottomEdge;
-                    bgRect.adjust(0, 0, -1, -1);
-                }
-            }
-            // Outline, fill, specular
-            Ph::fillRectEdges(painter, btnRect, edges, 1, swatch.color(S_window_outline));
-            painter->fillRect(bgRect, swatch.color(fill));
-            if (specular) {
-                Ph::fillRectOutline(painter, bgRect, 1, swatch.color(specular));
-            }
-
-            // Arrows
-            Qt::ArrowType arrowType;
-            if (isHorizontal) {
-                arrowType = isLeftToRight ? Qt::LeftArrow : Qt::RightArrow;
-            } else {
-                arrowType = Qt::UpArrow;
-            }
-            int adj = qMin(bgRect.width(), bgRect.height()) / 4;
-            Ph::drawArrow(painter, bgRect.adjusted(adj, adj, -adj, -adj), arrowType, swatch, hasRange);
+            painter->fillRect(scrollBarSubLine, swatch.color(S_window));
         }
 
         // The AddLine (down/right) button
         if (scrollBar->subControls & SC_ScrollBarAddLine) {
-            Swatchy fill, specular;
-            if (isSunken && scrollBar->activeSubControls & SC_ScrollBarAddLine) {
-                fill = S_button_pressed;
-                specular = S_button_pressed_specular;
-            } else if (hasRange) {
-                fill = S_button;
-                specular = S_button_specular;
-            } else {
-                fill = S_window;
-                specular = S_none;
-            }
-            QRect btnRect = scrollBarAddLine;
-            QRect bgRect = btnRect;
-            Qt::Edges edges;
-            if (isLeftToRight) {
-                edges = Qt::LeftEdge | Qt::TopEdge;
-                bgRect.adjust(1, 1, 0, 0);
-            } else {
-                edges = Qt::TopEdge | Qt::RightEdge;
-                bgRect.adjust(0, 1, -1, 0);
-            }
-            // Outline, fill, specular
-            Ph::fillRectEdges(painter, btnRect, edges, 1, swatch.color(S_window_outline));
-            painter->fillRect(bgRect, swatch.color(fill));
-            if (specular) {
-                Ph::fillRectOutline(painter, bgRect, 1, swatch.color(specular));
-            }
-
-            // Arrows
-            Qt::ArrowType arrowType;
-            if (isHorizontal) {
-                arrowType = isLeftToRight ? Qt::RightArrow : Qt::LeftArrow;
-            } else {
-                arrowType = Qt::DownArrow;
-            }
-            int adj = qMin(bgRect.width(), bgRect.height()) / 4;
-            Ph::drawArrow(painter, bgRect.adjusted(adj, adj, -adj, -adj), arrowType, swatch, hasRange);
+            painter->fillRect(scrollBarAddLine, swatch.color(S_window));
         }
         break;
     }
@@ -3885,9 +3678,8 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         val = 24;
         break;
     case PM_ScrollBarExtent:
-        // Classic Mac would have an extent of 15 (14 visible clickable, need +1 in
-        // Qt for frame), so we're 1px thinner.
-        val = 14;
+    case PM_ScrollView_ScrollBarOverlap:
+        val = 8;
         break;
     case PM_SliderThickness:
     case PM_SliderLength:
@@ -3930,6 +3722,9 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         break;
     case PM_ToolBarItemMargin:
         val = 1;
+        break;
+    case PM_ToolBarExtensionExtent:
+        val = 32;
         break;
     case PM_ListViewIconSize:
     case PM_SmallIconSize:
@@ -4010,9 +3805,6 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         val = 14;
         break;
     case PM_ScrollView_ScrollBarSpacing:
-        val = 0;
-        break;
-    case PM_ScrollView_ScrollBarOverlap:
         val = 0;
         break;
     case PM_TreeViewIndentation: {
@@ -4721,6 +4513,7 @@ int BaseStyle::styleHint(StyleHint hint,
     case SH_DialogButtonBox_ButtonsHaveIcons:
         return 0;
     case SH_ScrollBar_Transient:
+        return 1;
     case SH_EtchDisabledText:
     case SH_DitherDisabledText:
     case SH_ToolBox_SelectedPageTitleBold:
