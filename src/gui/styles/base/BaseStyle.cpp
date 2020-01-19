@@ -3415,6 +3415,13 @@ void BaseStyle::drawComplexControl(ComplexControl control,
         QRect scrollBarSlider = pr->subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
         QRect scrollBarGroove = pr->subControlRect(control, scrollBar, SC_ScrollBarGroove, widget);
 
+        int padding = Ph::dpiScaled(4);
+        scrollBarSlider.setX(scrollBarSlider.x() + padding);
+        scrollBarSlider.setY(scrollBarSlider.y() + padding);
+        // Width and height should be reduced by 2 * padding, but somehow padding is enough.
+        scrollBarSlider.setWidth(scrollBarSlider.width() - padding);
+        scrollBarSlider.setHeight(scrollBarSlider.height() - padding);
+
         // Groove/gutter/trench area
         if (scrollBar->subControls & SC_ScrollBarGroove) {
             painter->fillRect(scrollBarGroove, swatch.color(S_window));
@@ -3422,8 +3429,10 @@ void BaseStyle::drawComplexControl(ComplexControl control,
 
         // Slider thumb
         if (scrollBar->subControls & SC_ScrollBarSlider) {
+            qreal radius = (scrollBar->orientation == Qt::Horizontal ?
+                            scrollBarSlider.height() : scrollBarSlider.width()) / 2.0;
             painter->fillRect(scrollBarSlider, swatch.color(S_window));
-            Ph::paintSolidRoundRect(painter, scrollBarSlider, PM_ScrollBarExtent / 2.0, swatch, S_button);
+            Ph::paintSolidRoundRect(painter, scrollBarSlider, radius, swatch, S_button);
         }
 
         // The SubLine (up/left) buttons
@@ -3678,8 +3687,7 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
         val = 24;
         break;
     case PM_ScrollBarExtent:
-    case PM_ScrollView_ScrollBarOverlap:
-        val = 8;
+        val = 12;
         break;
     case PM_SliderThickness:
     case PM_SliderLength:
@@ -3804,6 +3812,7 @@ int BaseStyle::pixelMetric(PixelMetric metric, const QStyleOption* option, const
             return widget->fontMetrics().height();
         val = 14;
         break;
+    case PM_ScrollView_ScrollBarOverlap:
     case PM_ScrollView_ScrollBarSpacing:
         val = 0;
         break;
@@ -4454,7 +4463,7 @@ int BaseStyle::styleHint(StyleHint hint,
     case SH_PrintDialog_RightAlignButtons:
     case SH_FontDialog_SelectAssociatedText:
     case SH_ComboBox_ListMouseTracking:
-    case SH_ScrollBar_StopMouseOverSlider:
+    case SH_Slider_StopMouseOverSlider:
     case SH_ScrollBar_MiddleClickAbsolutePosition:
     case SH_TitleBar_AutoRaise:
     case SH_TitleBar_NoBorder:
@@ -4517,11 +4526,11 @@ int BaseStyle::styleHint(StyleHint hint,
     case SH_EtchDisabledText:
     case SH_DitherDisabledText:
     case SH_ToolBox_SelectedPageTitleBold:
-    case SH_ScrollView_FrameOnlyAroundContents:
     case SH_Menu_AllowActiveAndDisabled:
     case SH_MainWindow_SpaceBelowMenuBar:
     case SH_MessageBox_CenterButtons:
     case SH_RubberBand_Mask:
+    case SH_ScrollView_FrameOnlyAroundContents:
         return 0;
     case SH_ComboBox_Popup: {
         return Phantom::UseQMenuForComboBoxPopup;
