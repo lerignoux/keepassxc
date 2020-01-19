@@ -183,7 +183,7 @@ namespace Phantom
             }
             QColor highlightedOutlineOf(const QPalette& pal)
             {
-                return adjustLightness(pal.color(QPalette::Highlight), -0.05);
+                return adjustLightness(pal.color(QPalette::Highlight), -0.08);
             }
             QColor dividerColor(const QColor& underlying)
             {
@@ -199,11 +199,11 @@ namespace Phantom
             }
             QColor lightShadeOf(const QColor& underlying)
             {
-                return adjustLightness(underlying, 0.07);
+                return adjustLightness(underlying, 0.08);
             }
             QColor darkShadeOf(const QColor& underlying)
             {
-                return adjustLightness(underlying, -0.07);
+                return adjustLightness(underlying, -0.08);
             }
             QColor overhangShadowOf(const QColor& underlying)
             {
@@ -215,11 +215,11 @@ namespace Phantom
             }
             QColor specularOf(const QColor& underlying)
             {
-                return adjustLightness(underlying, 0.03);
+                return adjustLightness(underlying, 0.01);
             }
             QColor pressedOf(const QColor& color)
             {
-                return adjustLightness(color, -0.02);
+                return adjustLightness(color, -0.05);
             }
             QColor indicatorColorOf(const QPalette& palette, QPalette::ColorGroup group = QPalette::Current)
             {
@@ -4054,10 +4054,10 @@ QSize BaseStyle::sizeFromContents(ContentsType type,
         break;
     }
     case CT_ToolButton:
-        newSize += QSize(2 + Phantom::DefaultFrameWidth, 2 + Phantom::DefaultFrameWidth);
+        newSize += QSize(Ph::dpiScaled(4 + Phantom::DefaultFrameWidth), Ph::dpiScaled(4 + Phantom::DefaultFrameWidth));
         break;
     case CT_ComboBox: {
-        newSize += QSize(0, 4 + Phantom::DefaultFrameWidth);
+        newSize += QSize(0, Ph::dpiScaled(3 + Phantom::DefaultFrameWidth));
         auto cb = qstyleoption_cast<const QStyleOptionComboBox*>(option);
         // Non-editable combo boxes have some extra padding on the left side,
         // similar to push buttons. We should account for that here to avoid text
